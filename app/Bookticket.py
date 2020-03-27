@@ -13,9 +13,9 @@ import requests
 logging.basicConfig(level=logging.DEBUG)
 
 session = boto3.Session(
-aws_access_key_id='ASIAVBLO43SBP7CW4HXJ',
-aws_secret_access_key='fOowJ3EbLbn5UHnGiixyYD4fSp+RhVgQgjhQt9w1',
-aws_session_token='FwoGZXIvYXdzELP//////////wEaDHAciCLtI3ILlKrQayK+AVAevU8CTHnA/R1jo2xyF/Sk2btRKRGJ5hW7YHuFn5/XyPQn45HwEZkMhrauclZRJze/wgaBWa8kguKFyorU5+Y9fN3JrOBAidQ7esx4HGxlFx+aoctxF5O7GF3TETT93qhiLkeManyM4IZqX0bSIZg+xGvv7oU1TyXf9PtVZbZrcoxxe5Caf5rGOVoIixqpSKW6ILpMYr4FuGkPufJGNGTvBLYPC8yqIxlHDn4MYVS2bH4OjUfbaB7aSSz/vUAoo6b18wUyLWW0KjeqtGd8XkjqDkDNGRfgbxqTHMZpnmrsrIY+8maEWHBQZRTnYukSRqOhrw==',
+aws_access_key_id='ASIAVBLO43SBLOC2JGF4',
+aws_secret_access_key='jy++YitQr+3fTUSupaZHymnDvlDBrbT2nx2IMv/3',
+aws_session_token='FwoGZXIvYXdzEML//////////wEaDGYV4sUpTrfSytMF5yK+AYLVaEQYnL+fZB9k1qbGT/CZNaE81fxQk9Sg/tEu7ga57h/mDewoY/Qr4TGpOCeVA692GGf1B817YaMwUcP0flDH1ITAu3bv1Kis/5hgPZVPQe5iwJ9LypW2UGhrQrxUcJYA6WEKREDdcbF5tm1+BowBxNdsFnIrMexmtAt+zSHWhS4tXRmjjqr0pmywAdiL0U877UG+a/k8I7h/h14fZotwke7QJC+1MAQd6+hkUVCtQJtH/YBquL0ORlSwLX4ojc/48wUyLf4Ne4J0fCBjXtTN3WqVlo/7V/7nRKRn7NxO8jenk9VO5ZPAxB0EdDXHr8zE1w==',
 region_name='us-east-1')
 
 dynamodb = session.resource('dynamodb')
@@ -31,6 +31,10 @@ def getDataFromRequest(dataObj,keyValue,requestObj=None):
         return base64.b64decode(dataObj.get(keyValue)).decode("ascii")
     else:
         return base64.b64decode(request.args.get(keyValue)).decode("ascii")
+
+@app.route('/booking')
+def health_check():
+    return "booking"
 
 @app.route('/bookticket' , methods=['POST'])
 def book_ticket():
@@ -68,7 +72,7 @@ def book_ticket():
         payment_request_json["expiry"] = expiry
         payment_request_json["card_number"] = card_number
         payment_request_json["cvv"] = cvv
-        payment_response = requests.post("http://localhost:5002/payment",json=payment_request_json)
+        payment_response = requests.post("http://project-alb-1382584841.us-east-1.elb.amazonaws.com/payment",json=payment_request_json)
         app.logger.debug(payment_response)
         ##
         card_number = helper.encryptValue(card_number)
@@ -102,15 +106,17 @@ def book_ticket():
     
     return json.dumps(response_json)
 
-@app.route('/bookticket/carddetails/<email>' , methods=['GET'])
-def card_details(email):
+@app.route('/bookticket/carddetails' , methods=['GET'])
+def card_details():
     response_json = {}
     response_json["message"] = "error"
     try:
         app.logger.debug(request)
         # data = request.get_json()
+        # app.logger.debug(email)
+        email = getDataFromRequest(dataObj=None, keyValue="email", requestObj=request)
         app.logger.debug(email)
-        email = b64decoding(email)
+        # email = b64decoding(email)
         if encoder.check_validity_token(request.headers['token'],email):
             response_json["message"] = "ok"
         else:

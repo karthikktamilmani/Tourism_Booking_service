@@ -15,4 +15,4 @@ EXPOSE 5002
 
 ENTRYPOINT [ "python3" ]
 
-CMD [ "Bookticket.py" ]
+CMD [ "testRun.py" ]
