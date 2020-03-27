@@ -2,23 +2,20 @@ from app import app, encoder, helper
 import logging
 import flask
 from flask import request, jsonify
-from datetime import datetime
 import json
 import time
 import base64
 import boto3
-from boto3.dynamodb.conditions import Key, Attr
-from random import randint
-
+import requests
 # app = flask.Flask(__name__)
 # app.config["DEBUG"] = True
 
 logging.basicConfig(level=logging.DEBUG)
 
 session = boto3.Session(
-aws_access_key_id='ASIAVBLO43SBMEXMSHED',
-aws_secret_access_key='N8ZF10DW5tsqqdOj4m3Cw/bi4+CJGmE5ZJpb1/p6',
-aws_session_token='FwoGZXIvYXdzELH//////////wEaDJ4EyeiUyGnrZfQA0yK+Abz2EORAR4U5FYplppdRmDoR2kCEtOYt9wRRVIMEE4Z/36v8YPfBnnaT1g7F3K7hJ5wu7w1grEbzwlXMyXS4iU3HBIIHBkp/WElAOL5wLHt5Vd4ejlpSVzYMaGK/Mv7MVpk7PGgvL8KNJSfZrzHvjr+9uhYZip5auPrYLKSgHms9CL7h/7fBgwQCvRSac6IWtYtpO6fDg4E/Lxj9IeTrMT622pFJAv7TEyfOYtPQMA0Py9lg+tIKbd/9TOUvSzAoju308wUyLb5SUOdN1TUpHpBLxljqhOlFQfYGV8tzWMsJ0ZfleHats+HrO540BSRsmbE4Cg==',
+aws_access_key_id='ASIAVBLO43SBP7CW4HXJ',
+aws_secret_access_key='fOowJ3EbLbn5UHnGiixyYD4fSp+RhVgQgjhQt9w1',
+aws_session_token='FwoGZXIvYXdzELP//////////wEaDHAciCLtI3ILlKrQayK+AVAevU8CTHnA/R1jo2xyF/Sk2btRKRGJ5hW7YHuFn5/XyPQn45HwEZkMhrauclZRJze/wgaBWa8kguKFyorU5+Y9fN3JrOBAidQ7esx4HGxlFx+aoctxF5O7GF3TETT93qhiLkeManyM4IZqX0bSIZg+xGvv7oU1TyXf9PtVZbZrcoxxe5Caf5rGOVoIixqpSKW6ILpMYr4FuGkPufJGNGTvBLYPC8yqIxlHDn4MYVS2bH4OjUfbaB7aSSz/vUAoo6b18wUyLWW0KjeqtGd8XkjqDkDNGRfgbxqTHMZpnmrsrIY+8maEWHBQZRTnYukSRqOhrw==',
 region_name='us-east-1')
 
 dynamodb = session.resource('dynamodb')
@@ -56,21 +53,26 @@ def book_ticket():
         payment_info = data.get("payment_info")
         ######## nested attribute of payment_info#######
         card_number = getDataFromRequest(dataObj=payment_info,keyValue="card_number")
-        app.logger.debug(card_number)
-        card_number = helper.encryptValue(card_number)
-        app.logger.debug(card_number)
         expiry = getDataFromRequest(dataObj=payment_info,keyValue="expiry")
-        expiry = helper.encryptValue(expiry)
-        app.logger.debug(expiry)
         cvv = getDataFromRequest(dataObj=payment_info,keyValue="cvv")
         app.logger.debug(cvv)
 
-        if encoder.check_validity_token(request.headers['token'],email):
-            response_json["message"] = "ok"
-        else:
-            return json.dumps(response_json)
+        # if encoder.check_validity_token(request.headers['token'],email):
+        #     response_json["message"] = "ok"
+        # else:
+        #     return json.dumps(response_json)
         ##
         # TODO: call payment API
+        payment_request_json = {}
+        payment_request_json["name"] = name_on_card
+        payment_request_json["expiry"] = expiry
+        payment_request_json["card_number"] = card_number
+        payment_request_json["cvv"] = cvv
+        payment_response = requests.post("http://localhost:5002/payment",json=payment_request_json)
+        app.logger.debug(payment_response)
+        ##
+        card_number = helper.encryptValue(card_number)
+        expiry = helper.encryptValue(expiry)
         ##
         tempid = int(time.time()*1000.0)
         table.put_item(
@@ -83,10 +85,6 @@ def book_ticket():
                 'to': to,
             }
         )
-
-        app.logger.debug(name_on_card)
-        app.logger.debug(card_number)
-        app.logger.debug(expiry)
 
         table2.put_item(
             Item={
