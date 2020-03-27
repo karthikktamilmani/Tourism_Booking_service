@@ -57,10 +57,10 @@ def book_ticket():
         cvv = getDataFromRequest(dataObj=payment_info,keyValue="cvv")
         app.logger.debug(cvv)
 
-        # if encoder.check_validity_token(request.headers['token'],email):
-        #     response_json["message"] = "ok"
-        # else:
-        #     return json.dumps(response_json)
+        if encoder.check_validity_token(request.headers['token'],email):
+            response_json["message"] = "ok"
+        else:
+            return json.dumps(response_json)
         ##
         # TODO: call payment API
         payment_request_json = {}
