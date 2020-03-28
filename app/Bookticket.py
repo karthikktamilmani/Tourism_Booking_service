@@ -13,9 +13,9 @@ import requests
 logging.basicConfig(level=logging.DEBUG)
 
 session = boto3.Session(
-aws_access_key_id='ASIAVBLO43SBELVEF37V',
-aws_secret_access_key='9GBWgb38jr9O+oaVio+gKp9Ic8NwtNm1tqUpOOWe',
-aws_session_token='FwoGZXIvYXdzEMX//////////wEaDC6vbZ1kZAK0wbVFaiK+AcegDqUaTw76gdlu4JN7o3Gb8sKw8VmlRDlLRufHBH06+OrcqvL3WP9w1v2YVbfiy0cLFin+DVErb07lLQ7NRx9ttx3BWJZH/zD8cbILH+9QfWZPc8+4spsIWgr4qfM54VFoEjXwDy9flVtHPE5qh2QljWGaDUKlWtCI2Nv7oh66HMwlkH9hUyozKbd1nLbThf7oOgxcrs81Jy75cNI+trxR3qQc7zk87YFECNkEyUtCJZFS5hXHbvKmGACYiogo/6/58wUyLVrJAZAKw9ADKvBs2Dh/JYTeDZo7wk0G7ObjSRJUSxETtfGWelmAa7Sycr/+0Q==',
+aws_access_key_id='ASIAVBLO43SBCA3ECHEA',
+aws_secret_access_key='fA9dlBzrdZN6acGb+UGjtfQdsKRPTiRwdj8yvwTn',
+aws_session_token='FwoGZXIvYXdzEN3//////////wEaDHCNhmdVg13ac63TGSK+Acwtve/RQrxh01XzQVkIOH8Ip/u4S1EmVGyd6UEUtAGFB+szlO8+GLoXddVTMJT2WBpR309koZRTZgpbO+Zs2y1bX9A6uts231MmQdZpu7qm+Kyw6ILDx9JyjhrUNC9BfI8pq/5MwpKyZTW8ctLSzl036MMcP8vwVEBFL9L9wjT1Yfx9hQ05Uq9ps+zS6eDTqQmpg4Vu5/V5tLj8m+tg+4QjCm0SYE8vndGbhMwPgwhoAqdPCTYh+iCZ43YKPPco3tH+8wUyLVOJMMbpCYCf/tq63sgar5C8TgpnrGHvFqaUXi9LY/smt2hesTPfcl09zhd9Og==',
 region_name='us-east-1')
 
 dynamodb = session.resource('dynamodb')
