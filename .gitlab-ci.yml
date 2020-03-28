@@ -71,5 +71,5 @@ deploy_dev:
   - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 737443768027.dkr.ecr.us-east-1.amazonaws.com/booking-module
   - echo "Preparation task"echo "Build Docker Image"
   - docker build -t booking-module .
-  - docker tag cloud_test:latest 737443768027.dkr.ecr.us-east-1.amazonaws.com/booking-module:latest
+  - docker tag booking-module:latest 737443768027.dkr.ecr.us-east-1.amazonaws.com/booking-module:latest
   - docker push 737443768027.dkr.ecr.us-east-1.amazonaws.com/booking-module:latest
