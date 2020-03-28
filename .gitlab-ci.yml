@@ -57,6 +57,7 @@ deploy_dev:
   - apk upgrade
   - apk add util-linux pciutils usbutils coreutils binutils findutils grep
   - apk add python python-dev py-pip
+  - apk add jq
 
   # AWS configs
   #- export AWS_ACCESS_KEY_ID='ASIA2XMYS43NZBCKPAFP'
@@ -73,3 +74,6 @@ deploy_dev:
   - docker build -t booking-module .
   - docker tag booking-module:latest 737443768027.dkr.ecr.us-east-1.amazonaws.com/booking-module:latest
   - docker push 737443768027.dkr.ecr.us-east-1.amazonaws.com/booking-module:latest
+  - export TASK_VERSION=$(aws ecs --region us-east-1 register-task-definition --family booking-module-task --container-definitions file://containerDef.json | jq --raw-output '.taskDefinition.revision')
+  - echo "ssss" ${TASK_VERSION}
+  - aws ecs update-service --region us-east-1 --cluster Project-test --service Booking-Service --task-definition booking-module-task:${TASK_VERSION}
