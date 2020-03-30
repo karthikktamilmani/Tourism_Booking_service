@@ -10,7 +10,16 @@
 
 ],
       "memory":256,
-      "essential":true
+      "essential":true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "secretOptions": null,
+        "options": {
+          "awslogs-group": "/ecs/places-module-task",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
 
 }
 ]
