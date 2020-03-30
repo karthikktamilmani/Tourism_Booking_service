@@ -1,4 +1,4 @@
-from app import app, encoder, helper
+from app import app, encoder, helper, mailTrigger
 import logging
 import flask
 from flask import request, jsonify
@@ -6,6 +6,9 @@ import json
 import time
 import base64
 import boto3
+import pdfkit
+import os
+
 import requests
 # app = flask.Flask(__name__)
 # app.config["DEBUG"] = True
@@ -13,9 +16,9 @@ import requests
 logging.basicConfig(level=logging.DEBUG)
 
 session = boto3.Session(
-aws_access_key_id='ASIAVBLO43SBCA3ECHEA',
-aws_secret_access_key='fA9dlBzrdZN6acGb+UGjtfQdsKRPTiRwdj8yvwTn',
-aws_session_token='FwoGZXIvYXdzEN3//////////wEaDHCNhmdVg13ac63TGSK+Acwtve/RQrxh01XzQVkIOH8Ip/u4S1EmVGyd6UEUtAGFB+szlO8+GLoXddVTMJT2WBpR309koZRTZgpbO+Zs2y1bX9A6uts231MmQdZpu7qm+Kyw6ILDx9JyjhrUNC9BfI8pq/5MwpKyZTW8ctLSzl036MMcP8vwVEBFL9L9wjT1Yfx9hQ05Uq9ps+zS6eDTqQmpg4Vu5/V5tLj8m+tg+4QjCm0SYE8vndGbhMwPgwhoAqdPCTYh+iCZ43YKPPco3tH+8wUyLVOJMMbpCYCf/tq63sgar5C8TgpnrGHvFqaUXi9LY/smt2hesTPfcl09zhd9Og==',
+aws_access_key_id='ASIAVBLO43SBOSQ6B5UF',
+aws_secret_access_key='FhuoczBaX7QHZL0gN8oVPC8qRxVVns7fP+GI+uzK',
+aws_session_token='FwoGZXIvYXdzEPr//////////wEaDLcZIvpunIvvR56H5yK+AazHsOO8Rxb7FCYqK5tE/L+Htq+YQd+P45SfwAo1NtF8XLk9tz4fr45wASZZ6JoT5KIE0YdyyEgJhIcG4ORxqjlpII2z+n6PAbh3zBIF4TVMMx7zVn84om4NBO+lcGhtXugwJKweQMzs4RGH+bUff2lLV4HEQ2GTHsHD6t5rMC5Ig1QRfHjF6P69Id47KfRrUVvJuaNrqnpJBUV2eSd9XZsTHlw77yMrZbyQCRgKHwL5bzcXEH/WJzFp3Tc0uHwo74SF9AUyLU8sO6o9dC75wKRRLK123AiEuvqbMVPT9chfQkgKD4nHc2xFhOafu82crbvQQw==',
 region_name='us-east-1')
 
 dynamodb = session.resource('dynamodb')
@@ -34,6 +37,7 @@ def getDataFromRequest(dataObj,keyValue,requestObj=None):
 
 @app.route('/booking')
 def health_check():
+    # mailTrigger.sendEmail("t.karthikk95@gmail.com","Test","Test")
     return "booking"
 
 @app.route('/bookticket' , methods=['POST'])
@@ -98,6 +102,25 @@ def book_ticket():
                 'Expiry' : expiry,
             }
         )
+        ##
+        try:
+            fp = open("TicketTemplate.html", "r")
+            tableTempl = fp.read()
+            fp.close()
+            ##
+            tableTempl = tableTempl.replace("{FROM_PLACE}", frm)
+            tableTempl = tableTempl.replace("{TO_PLACE}", to)
+            tableTempl = tableTempl.replace("{DATE}", date )
+            tableTempl = tableTempl.replace("{PRICE}", price)
+            ##
+            app.logger.debug(tableTempl)
+            attachmentName = str(tempid)+".pdf"
+            pdfkit.from_string(tableTempl,"./app/"+attachmentName)
+            mailTrigger.sendEmail(email,"Ticket Confirmation","Your Ticket is confirmed and is attached",attachmentName)
+            os.remove("./app/"+attachmentName)
+        except Exception as e:
+            app.logger.debug("File error")
+            app.logger.debug(e)
 
     except Exception as e:
         app.logger.debug("Error")
