@@ -6,8 +6,9 @@ import json
 import time
 import base64
 import boto3
-import pdfkit
+#import pdfkit
 import os
+from weasyprint import HTML
 
 import requests
 # app = flask.Flask(__name__)
@@ -16,9 +17,9 @@ import requests
 logging.basicConfig(level=logging.DEBUG)
 
 session = boto3.Session(
-aws_access_key_id='ASIAVBLO43SBNDWK3IFY',
-aws_secret_access_key='FTirvlKR7chchm7VhEKpwKcpVZO7UMdsaHkFb4xe',
-aws_session_token='FwoGZXIvYXdzEAwaDHPC1BXZvD7joKzDOyK+AXqHeKp7bAqaTYcOFBi6MVrzjrOpdcvaKu+ygMSHFVYbTCO/7QcBnC50usSeBehDRktNXR5bbx6sWB/kaTju4GOJlGl2MyLXqrGU5mgAVRxn7O+G1nrX3G2JKR2dTsxOHM7xxCTOIkiYZ9kvGkV/B0DkJ/cviV+pT7PlCTQKcD2MKKyGe/xhtLgSbAvVGzv3DYYf44h8VQr8FetdkRTcfBjKTDcW8kxpF1q4EDPeZLhiGbxWfG1iwD+I8cxkMxoo2PiI9AUyLf/NBzJYjzq7SG7C0lLDrH8suv0oVYAANKtu7VdmqIGoKfW+ELRgil7/RhMXoA==',
+aws_access_key_id='ASIAVBLO43SBEA4YBC5B',
+aws_secret_access_key='33vcxQZONxbUwMLw8Ior5ic6Uz8I+RJJgQOX42FU',
+aws_session_token='FwoGZXIvYXdzEA4aDO9Q/AGo3RmXqc9WgiK+AUFyRlZHu7TGN9mgOppDj3wn7eFWcnv/LmYyjMv9umwvkJsBFmU9jwcRk7beYYUd71YKjEJQ80PdGAhSh293p9oB/zMzMWm/8++ttjOUHqHyOGDRVDz0s8YdT/RCxoOO/XEe6oslUZ1PP+hl2aknMPz9c1ULkf2ZNYvC42Xe4OUZutX+lMaPe0Quj2/TXjlwRyFqlXaGI9p7KNBkeujzoljDFFSSu4lSWp72W5owLJK/l6FHrd5pXLmooNwn8tko37KJ9AUyLeN0h3iYUQHDYRESgtOfBZP7PSdu7UsqvOLqkwsXWOIhxISATLRuIEP31uCokQ==',
 region_name='us-east-1')
 
 dynamodb = session.resource('dynamodb')
@@ -26,7 +27,7 @@ dynamodb = session.resource('dynamodb')
 table = dynamodb.Table('Booking')
 table2 = dynamodb.Table('Card_detail')
 host_URL = "http://project-alb-1382584841.us-east-1.elb.amazonaws.com"
-
+# host_URL = "http://localhost:5001"
 def b64decoding(value,requestObj=None):
         return base64.b64decode(value).decode("ascii")
 
@@ -119,7 +120,8 @@ def book_ticket():
             ##
             app.logger.debug(tableTempl)
             attachmentName = str(tempid)+".pdf"
-            pdfkit.from_string(tableTempl,"./app/"+attachmentName)
+            # pdfkit.from_string(tableTempl,"./app/"+attachmentName)
+            HTML(string=tableTempl).write_pdf('./app/' + attachmentName)
             mailTrigger.sendEmail(email,"Ticket Confirmation","Your Ticket is confirmed and is attached",attachmentName)
             os.remove("./app/"+attachmentName)
         except Exception as e:
