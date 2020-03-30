@@ -16,15 +16,16 @@ import requests
 logging.basicConfig(level=logging.DEBUG)
 
 session = boto3.Session(
-aws_access_key_id='ASIAVBLO43SBHTLMJ3SN',
-aws_secret_access_key='KFcMAc2HlBoS36zS1uDco4spYc68bK6xitRA5M2/',
-aws_session_token='FwoGZXIvYXdzEOD//////////wEaDJuVNAK1zw2OILI0iiK+AQa5WijKoe9ho5SYkMBj7iBq5tR8pfGSkPVlJVtoSDTsdyq2c9frbr9GshB1IY9lWneEbXF09oi/wWfRGgEen+glEMay2afOz26tLh0BefnoF0d3bKbVYV0iFYPLfqj73SDNDncmv1vcxm2AFXbsNfNLrPA4ssFgxvYPGnTM8JdT/Rx36zkiIW31f13Lp/GnghpWfbJgOc7HsWsLk6rbmdwUCay26uBqHZnV1rZnPgFNy2K8fot1Tw42eMRS+OYo+6H/8wUyLS4+ctSplgB9txxVPrKLv4LwWLEwk3aQM9jz1P50WLGtlANL0EIfU530CxH80w==',
+aws_access_key_id='ASIAVBLO43SBNDWK3IFY',
+aws_secret_access_key='FTirvlKR7chchm7VhEKpwKcpVZO7UMdsaHkFb4xe',
+aws_session_token='FwoGZXIvYXdzEAwaDHPC1BXZvD7joKzDOyK+AXqHeKp7bAqaTYcOFBi6MVrzjrOpdcvaKu+ygMSHFVYbTCO/7QcBnC50usSeBehDRktNXR5bbx6sWB/kaTju4GOJlGl2MyLXqrGU5mgAVRxn7O+G1nrX3G2JKR2dTsxOHM7xxCTOIkiYZ9kvGkV/B0DkJ/cviV+pT7PlCTQKcD2MKKyGe/xhtLgSbAvVGzv3DYYf44h8VQr8FetdkRTcfBjKTDcW8kxpF1q4EDPeZLhiGbxWfG1iwD+I8cxkMxoo2PiI9AUyLf/NBzJYjzq7SG7C0lLDrH8suv0oVYAANKtu7VdmqIGoKfW+ELRgil7/RhMXoA==',
 region_name='us-east-1')
 
 dynamodb = session.resource('dynamodb')
 
 table = dynamodb.Table('Booking')
 table2 = dynamodb.Table('Card_detail')
+host_URL = "http://project-alb-1382584841.us-east-1.elb.amazonaws.com"
 
 def b64decoding(value,requestObj=None):
         return base64.b64decode(value).decode("ascii")
@@ -44,7 +45,7 @@ def health_check():
 def book_ticket():
     response_json = {}
     response_json["message"] = "error"
-    global temp_booking_id
+    global host_URL
     try:
         app.logger.debug(request)
         data = request.get_json()
@@ -65,18 +66,21 @@ def book_ticket():
         cvv = getDataFromRequest(dataObj=payment_info,keyValue="cvv")
         app.logger.debug(cvv)
 
-        if encoder.check_validity_token(request.headers['token'],email):
+        validation_response = requests.post(host_URL + "/user", json={"email": data.get("email")}, headers={"token": request.headers['token']})
+        # app.logger.debug(validation_response.json())
+        validation_response = validation_response.json()
+        if validation_response["message"] == "ok":
             response_json["message"] = "ok"
         else:
             return json.dumps(response_json)
-        ##
+        # ##
         # TODO: call payment API
         payment_request_json = {}
         payment_request_json["name"] = name_on_card
         payment_request_json["expiry"] = expiry
         payment_request_json["card_number"] = card_number
         payment_request_json["cvv"] = cvv
-        payment_response = requests.post("http://project-alb-1382584841.us-east-1.elb.amazonaws.com/payment",json=payment_request_json)
+        payment_response = requests.post(host_URL+"/payment",json=payment_request_json)
         app.logger.debug(payment_response)
         ##
         card_number = helper.encryptValue(card_number)
@@ -133,6 +137,7 @@ def book_ticket():
 def card_details():
     response_json = {}
     response_json["message"] = "error"
+    global host_URL
     try:
         app.logger.debug(request)
         # data = request.get_json()
@@ -140,7 +145,9 @@ def card_details():
         email = getDataFromRequest(dataObj=None, keyValue="email", requestObj=request)
         app.logger.debug(email)
         # email = b64decoding(email)
-        if encoder.check_validity_token(request.headers['token'],email):
+        validation_response = requests.post(host_URL + "/user", json={"email": request.args.get("email")}, headers={"token": request.headers['token']})
+        validation_response = validation_response.json()
+        if validation_response["message"] == "ok":
             response_json["message"] = "ok"
         else:
             return json.dumps(response_json)
