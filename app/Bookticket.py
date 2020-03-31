@@ -17,9 +17,9 @@ import requests
 logging.basicConfig(level=logging.DEBUG)
 
 session = boto3.Session(
-aws_access_key_id='ASIAVBLO43SBLJ6KAVPU',
-aws_secret_access_key='LONIUwtOldTOGDZUQaFTzKmQz0I3Anm1Is7937on',
-aws_session_token='FwoGZXIvYXdzECEaDA7s+u5adbrJ94rYVSK+AVEXdZDOwXUOlPea7btkoN9LwJdXdj2HvVTSh3qAlx6Gi6NXDPxSobeF+kNxaBCAUqJ9bUeztT7wyI0HR4gIdsjnEiziFNP79Hn+C7QMChhiHrh+sa4RoX/TjiNYvg2fyCxrP6gOYBVF45boZFWLknfAMeWbU+89IoI6XFMeiYuc4DVhaSn5SCM65gxmHLRYfUx2Z05gkoNOV46X4HJcelW78ZoX0qoj5hZdUwSdr7NlLhIcnrQH/eNY3ffgyAEo3tKN9AUyLcvnO4M18AJgsXVbkEM5SM4c3qM1IUq3NQ4pBPTmKwco6FHTWzMjwcMlE7mT5A==',
+aws_access_key_id='ASIAVBLO43SBNQ4VI5TV',
+aws_secret_access_key='r4v5eJl1ezKJ15l051/EJoUMrsvSwU3U2iKwhZ7J',
+aws_session_token='FwoGZXIvYXdzECUaDBoHhBEEIAiIwe9viyK+AXdgr7e+Q6k5v6BMvrqYMvGb0DzJSWJNtzTfnBkWG/EJQqAWbsXUsugQ5y/I4SmKrq/UuMbGxjk4eWF3D3//UAmx+gUQdmyTT7iKR33bhoA96UfqrUHVu83nwF3Vl7YGZ7Wsjy8m7qO3+/Gup350pLBBKLoY0INYOAi7lj/psa7mwUqoYeRKLGFoXx2gLJIeKpS6M5vxZV9FPp/lwQFR4bHE0U4LIcRHhScSruKgYGutMSkR0SjhZ845eAX3jDYooMSO9AUyLWbCoEycvfxFgLFFtZ3fzxwzo7hCBl0AeittSyUaXa7ckPrHKqF0Y/85t2Gxng==',
 region_name='us-east-1')
 
 dynamodb = session.resource('dynamodb')
@@ -59,6 +59,7 @@ def book_ticket():
         frm = getDataFromRequest(dataObj=data,keyValue="from")
         to = getDataFromRequest(dataObj=data,keyValue="to")
         name_on_card = getDataFromRequest(dataObj=data,keyValue="name")
+        passenger_count = getDataFromRequest(dataObj=data, keyValue="count")
         ##
         payment_info = data.get("payment_info")
         ######## nested attribute of payment_info#######
@@ -117,6 +118,7 @@ def book_ticket():
             tableTempl = tableTempl.replace("{TO_PLACE}", to)
             tableTempl = tableTempl.replace("{DATE}", date )
             tableTempl = tableTempl.replace("{PRICE}", price)
+            tableTempl = tableTempl.replace("{COUNT}", passenger_count)
             ##
             app.logger.debug(tableTempl)
             attachmentName = str(tempid)+".pdf"
