@@ -17,9 +17,9 @@ import requests
 logging.basicConfig(level=logging.DEBUG)
 
 session = boto3.Session(
-aws_access_key_id='ASIAVBLO43SBPBED5LPA',
-aws_secret_access_key='bPQA2hFRatP4w7Zs4du5Cgr0GlJMAdt5Lg5Q98lq',
-aws_session_token='FwoGZXIvYXdzECkaDBgf4vSSSWwETsxP+SK+AXGBp+1xMQQ1OwApQKB+sysypSFwSLvAjfmSzZaJZTcgF5+lXAARDhYH0Y5QmO70R1+agiZbkkWuobdYgUtNJYBHLiWn9B/F2xYmnRUrKQJx/TpgeBd/QHHdsuEYZ1i++KdM+sF5XTdT6Qd6ww7RLaadBIhpL9rIzIQpvc2BN9dOfBMbCX30IHaNNjMpWceVHTitNB2eVUgwwSQDaySeF0dl3AN1WUp6Ed1Gxwv/8A6C52QC5PG6tSPF+hT/uuUoxJ2P9AUyLQPjw7lVIozkjaePhM2M7/cdp6RsJe7LTdbLFfyttrJnhPmXpOOSd3EE+9XqjQ==',
+aws_access_key_id=app.config.get("AWS_ACCESS_KEY_ID"),
+aws_secret_access_key=app.config.get("AWS_SECRET_ACCESS_KEY"),
+aws_session_token=app.config.get("AWS_SESSION_TOKEN"),
 region_name='us-east-1')
 
 dynamodb = session.resource('dynamodb')
