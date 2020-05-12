@@ -44,6 +44,75 @@ def health_check():
 
 @app.route('/bookticket' , methods=['POST'])
 def book_ticket():
+    """Books ticket and sends the ticket in email
+                    This is using docstrings for specifications. All the parameter values are base64 encoded and are sent.
+                    ---
+                    parameters:
+                      - name: token
+                        in: header
+                        type: string
+                        format: byte
+                        required: true
+                      - name: email
+                        in: body
+                        type: string
+                        format: byte
+                        required: true
+                      - name: date
+                        in: body
+                        type: string
+                        format: byte
+                        required: true
+                      - name: price
+                        in: body
+                        type: string
+                        format: byte
+                        required: true
+                      - name: from
+                        in: body
+                        type: string
+                        format: byte
+                        required: true
+                      - name: to
+                        in: body
+                        type: string
+                        format: byte
+                        required: true
+                      - name: name
+                        in: body
+                        type: string
+                        format: byte
+                        required: true
+                      - name: count
+                        description: number of passengers travelling
+                        in: body
+                        type: string
+                        format: byte
+                        required: true
+                      - name: payment_info
+                        in: body
+                        schema:
+                            type: object
+                            properties:
+                                card_number:
+                                    type: string
+                                    required: true
+                                expiry:
+                                    type: string
+                                    required: true
+                                cvv:
+                                    type: string
+                                    required: true
+                        required: true
+                    responses:
+                      200:
+                        schema:
+                            type: object
+                            properties:
+                              message:
+                                type: string
+                                description: ok if valid, else error
+                    """
     response_json = {}
     response_json["message"] = "error"
     global host_URL
@@ -139,6 +208,35 @@ def book_ticket():
 
 @app.route('/bookticket/carddetails' , methods=['GET'])
 def card_details():
+    """Retrieves saved card details for the given user email
+                        This is using docstrings for specifications. All the parameter values are base64 encoded and are sent.
+                        ---
+                        parameters:
+                          - name: email
+                            in: query
+                            type: string
+                            format: byte
+                            required: true
+                          - name: token
+                            in: header
+                            type: string
+                            format: byte
+                            required: true
+                        responses:
+                          200:
+                            schema:
+                                type: object
+                                properties:
+                                  message:
+                                    type: string
+                                    description: ok if valid, else error
+                                  card_number:
+                                    type: string
+                                  expiry:
+                                    type: string
+                                  name:
+                                    type: string
+                        """
     response_json = {}
     response_json["message"] = "error"
     global host_URL
